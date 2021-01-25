@@ -1,5 +1,5 @@
 # Essential React interview questions
----
+
 It's a book about React and JavaScript interview question. We hope that it will help all javascript developers to prepare for a technical job interview.
 
 
@@ -406,6 +406,38 @@ const handleClick = throttle(onClick, 300);
 ### 15. What is Prototype ?
 
 ### 16. What is Starvation in callback queue ?
+
+### 17. What will be the output of the following code ?
+```javascript
+var c = 100;
+{
+    console.log(c);    
+    var c = 10;
+    console.log(c);
+}
+console.log(c);
+```
+```
+Output: 100
+        10
+        10
+```
+### 18. What will be the output of the following code ?
+```javascript
+var c = 100;
+function x() {
+    console.log(c);    
+    var c = 10;
+    console.log(c);
+}
+x();
+console.log(c);
+```
+```
+Output: undefined
+        10
+        100
+```
 
 ## React
 
