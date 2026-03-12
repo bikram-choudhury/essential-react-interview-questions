@@ -99,7 +99,7 @@ This document contains advanced questions focused on frontend architecture, syst
 
     a. How do you optimize?
 
-    ***Answer:*** Group and categorize the requests: identify independent calls and launch them in parallel (`Promise.all`/`allSettled`), but batch or serialize those that share resources. Cache responses that are static or change infrequently (in‑memory, localStorage, SWR/React‑Query). Consider backend aggregation (a single endpoint or GraphQL) and lazy‑load non‑critical data after the initial render.
+    ***Answer:*** Analyze and Identify APIs into 3 parts; **Critical for first paint, Required for interaction, Non-critical** Group and categorize the requests: identify independent calls and launch them in parallel (`Promise.all`/`allSettled`), but batch or serialize those that share resources. Cache responses that are static or change infrequently (in‑memory, localStorage, SWR/React‑Query). Consider backend aggregation (a single endpoint or GraphQL) and lazy‑load non‑critical data after the initial render.
 
     b. When would you use caching?
 
