@@ -93,6 +93,27 @@ This document contains advanced questions focused on frontend architecture, syst
     - Runtime optimizations like memoization add overhead and can lead to bugs if dependencies aren't managed properly.
     - Overall, these techniques trade initial complexity for better user experience, but may require more sophisticated tooling and monitoring.
 
+14. **API Calls at Scale**
+
+    You have a dashboard making **12 API** calls on load.
+
+    a. How do you optimize?
+
+    ***Answer:*** Group and categorize the requests: identify independent calls and launch them in parallel (`Promise.all`/`allSettled`), but batch or serialize those that share resources. Cache responses that are static or change infrequently (in‑memory, localStorage, SWR/React‑Query). Consider backend aggregation (a single endpoint or GraphQL) and lazy‑load non‑critical data after the initial render.
+
+    b. When would you use caching?
+
+    ***Answer:*** Use caching whenever responses are expensive or repeatable. On the client you can use browser HTTP caching (ETags, Cache-Control), in‑memory caches for session scope, and service‑worker or IndexedDB caches for offline/storage. On the server, API caching (CDN, reverse proxy, in‑process) reduces database hits.
+
+    c. When is parallel bad?
+
+    ***Answer:*** Fire‑hosing the server with many simultaneous requests can trigger rate limits, overwhelm connections, and degrade shared resources. Parallelism also increases contention on the network and can waste CPU if responses aren’t needed immediately; in those cases, throttle or batch requests.
+
+    d. Backend vs frontend responsibility?
+
+    ***Answer:*** The frontend should orchestrate calls, apply caching/retries, and combine results for the UI; it should not implement business logic or aggregation. The backend should provide sensible, efficient endpoints (bulk/aggregated APIs or GraphQL) and enforce rate limiting, so the client isn’t forced to coordinate dozens of requests to render a single screen.
+
+
 ## Testing Architecture
 
 14. **Describe a comprehensive testing strategy covering unit, integration, and E2E tests.**
