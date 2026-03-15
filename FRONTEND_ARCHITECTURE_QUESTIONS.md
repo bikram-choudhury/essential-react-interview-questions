@@ -12,27 +12,42 @@ This document contains advanced questions focused on frontend architecture, syst
    
 4. **Describe a scalable folder structure for a large React application and the reasoning behind it.**
 
+5. **Explain the difference between Render Phase & Commit Phase.**
+
+    ***Answer:*** In React, the `Render Phase` refers to the reconciliation process where React calculates the differences between the previous virtual DOM and the new virtual DOM to determine what changes are needed. This phase can be **stopped/paused/resumed**. The `Commit Phase` refers to the actual application of those changes to the real DOM, which is **synchronous and irreversible**.
+    ```txt
+        User action
+            ↓
+        Render Phase
+        (Virtual DOM diffing)
+            ↓
+        Commit Phase
+        (Update real DOM)
+            ↓
+        Browser paint
+    ```
+
 ## State Management
 
-5. **When would you choose Context API over Redux, MobX, or Zustand? Provide examples.**
+1. **When would you choose Context API over Redux, MobX, or Zustand? Provide examples.**
    
-6. **How do you prevent prop drilling in deeply nested component trees?**
+2. **How do you prevent prop drilling in deeply nested component trees?**
    
-7. **Design a state management solution for a real-time collaborative application (like Google Docs).**
+3. **Design a state management solution for a real-time collaborative application (like Google Docs).**
    
-8. **What are the benefits of using atomic state management patterns (Recoil, Jotai) over traditional Redux?**
+4. **What are the benefits of using atomic state management patterns (Recoil, Jotai) over traditional Redux?**
 
 ## Performance & Scalability
 
-9. **How would you architect an application to handle 10,000+ components efficiently?**
+1. **How would you architect an application to handle 10,000+ components efficiently?**
    
-10. **Explain code splitting strategies and when to apply route-based vs. component-based splitting.**
+2. **Explain code splitting strategies and when to apply route-based vs. component-based splitting.**
     
-11. **Design a caching strategy for API calls in a large application (memory, localStorage, service worker).**
+3. **Design a caching strategy for API calls in a large application (memory, localStorage, service worker).**
     
-12. **How do you implement progressive image loading and lazy loading in a performance-critical app?**
+4. **How do you implement progressive image loading and lazy loading in a performance-critical app?**
 
-13. **Real-world Performance Debugging Scenario**
+5. **Real-world Performance Debugging Scenario**
     
     Imagine your React app is slow on first load. Bundle is **5MB JS**. Time to Interactive (TTI) is poor.
     
@@ -93,7 +108,7 @@ This document contains advanced questions focused on frontend architecture, syst
     - Runtime optimizations like memoization add overhead and can lead to bugs if dependencies aren't managed properly.
     - Overall, these techniques trade initial complexity for better user experience, but may require more sophisticated tooling and monitoring.
 
-14. **API Calls at Scale**
+6. **API Calls at Scale**
 
     You have a dashboard making **12 API** calls on load.
 
@@ -113,38 +128,66 @@ This document contains advanced questions focused on frontend architecture, syst
 
     ***Answer:*** The frontend should orchestrate calls, apply caching/retries, and combine results for the UI; it should not implement business logic or aggregation. The backend should provide sensible, efficient endpoints (bulk/aggregated APIs or GraphQL) and enforce rate limiting, so the client isn’t forced to coordinate dozens of requests to render a single screen.
 
+6. **A React page re-renders too often and becomes slow. Explain**
+
+    a. How you would debug the issue ?
+
+    ***Answer:*** First, I would identify the cause of excessive re-renders using console.log statements or the React Developer Tools Components tab to track render triggers. Then, I'd analyze performance with Chrome's Performance tab and React DevTools Profiler tab to review the page's performance overview and mitigation strategies. The Profiler tab shows component lifecycles, rendering patterns, and prop changes.
+
+    b. Tools you would use
+    
+    ***Answer:*** React Developer Tools & Google Chrome's Performance tab
+
+    c. Code-level optimizations
+
+    ***Answer:*** Several techniques can optimize at the code level:
+     - Browser-level caching, API caching, memory caching
+     - Cache large calculations using `useMemo`
+     - Cache child components and events using `React.memo` and `useCallback`
+     - Implement lazy loading of components
+     - Avoid inline functions/objects in JSX to prevent unnecessary re-renders
+     - Use `useEffect` dependencies carefully to prevent infinite loops
+
+    d. Architecture-level optimizations
+
+    ***Answer:*** At the architecture level, consider:
+     - Virtualizing large lists with libraries like `react-window` to render only visible items
+     - Code splitting to load components on demand
+     - Server-side rendering (SSR) or static generation to reduce client-side work
+     - Implementing global state management to avoid prop drilling and cascading re-renders
+     - Using error boundaries to isolate problematic components
 
 ## Testing Architecture
 
-14. **Describe a comprehensive testing strategy covering unit, integration, and E2E tests.**
+1. **Describe a comprehensive testing strategy covering unit, integration, and E2E tests.**
     
-15. **How would you structure tests for a complex state management system?**
+2. **How would you structure tests for a complex state management system?**
     
-16. **What's the best approach to test async operations and API calls in React components?**
+3. **What's the best approach to test async operations and API calls in React components?**
 
 ## Build & Deployment
 
-17. **Design a CI/CD pipeline for a large-scale frontend application.**
+1. **Design a CI/CD pipeline for a large-scale frontend application.**
     
-18. **How would you optimize bundle size for a production React application?**
+2. **How would you optimize bundle size for a production React application?**
     
-19. **Explain the trade-offs between server-side rendering (SSR), static site generation (SSG), and client-side rendering (CSR).**
+3. **Explain the trade-offs between server-side rendering (SSR), static site generation (SSG), and client-side rendering (CSR).**
 
 ## Patterns & Best Practices
 
-20. **Describe the compound component pattern and when to use it.**
+1. **Describe the compound component pattern and when to use it.**
     
-21. **How would you implement a plugin/extension system in a frontend application?**
+2. **How would you implement a plugin/extension system in a frontend application?**
     
-22. **What are the security considerations when building a frontend architecture (XSS, CSRF, etc.)?**
+3. **What are the security considerations when building a frontend architecture (XSS, CSRF, etc.)?**
     
-23. **Design a logging and error monitoring system for production applications.**
+4. **Design a logging and error monitoring system for production applications.**
 
 ## Scalability & Maintenance
 
-24. **How do you handle versioning and backwards compatibility in a component library?**
+1. **How do you handle versioning and backwards compatibility in a component library?**
     
-25. **Explain strategies for managing technical debt in a growing codebase.**
+2. **Explain strategies for managing technical debt in a growing codebase.**
     
-26. **How would you refactor a legacy monolithic frontend into a modular architecture without breaking features?**
+3. **How would you refactor a legacy monolithic frontend into a modular architecture without breaking features?**
 

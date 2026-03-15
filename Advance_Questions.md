@@ -254,3 +254,104 @@ Then you can call `const width = useWindowWidth();` in multiple components to sh
     c. Why is `JSON.parse(JSON.stringify())` dangerous?
 
     ***Answer:*** That approach only works for JSON‑serializable data. It drops functions, `undefined`, `Symbol`s, and prototype information, and may fail on circular references, leading to errors or data loss. It’s brittle and unsuitable when objects contain Date, Map/Set, or custom classes.
+
+21. **Explain `Debounce` vs `Throttle` with some real world scenario**
+
+   ***Answer:*** `Debounce` delays function execution until after a specified delay has passed without new invocations, effectively cancelling previous pending calls—ideal for scenarios like search input where you want to wait for the user to stop typing before triggering an API call. Debounce can have leading or trailing execution:
+
+   - **Trailing debounce** (most common): Executes the function only after the delay has elapsed since the last call, ensuring it runs once after a pause in activity.
+   - **Leading debounce**: Executes the function immediately on the first call, then ignores subsequent calls for the delay period. This prevents spam but allows immediate response.
+   - **Leading and trailing**: Combines both—executes immediately and also at the end of the delay if additional calls occurred.
+
+   `Throttle` limits execution to at most once per interval, allowing the first call immediately (leading edge) and preventing subsequent calls until the interval elapses—useful for events like window resizing to avoid excessive recalculations.
+
+   ```js
+   function debounce(func, delay) {
+     let _this = this, timeoutId;
+     return function(...args) {
+       clearTimeout(timeoutId);
+       timeoutId = setTimeout(() => func.apply(_this, args), delay);
+     };
+   }
+
+   function throttle(func, delay) {
+     let _this = this,
+         canExecute = true;
+     return function(...args) {
+      if(canExecute) {
+         func.apply(this, args);
+         canExecute = false;
+         setTimeout(() => {
+            canExecute = true;
+         }, delay);
+      }
+     };
+   }
+
+   const debouncedFunction = debounce(() => console.log('Debounced'), 500);
+   const throttledFunction = throttle(() => console.log('Throttled'), 500);
+   ```
+
+22. Explain `Promises` vs `async/await`
+   
+   ***Answer:*** `Promises` are an abstraction for a future value (or error) produced by an async operation. They are created with `new Promise((resolve, reject) => ...)` and you interact with them via `.then()`/`.catch()`/`.finally()`. `async/await` is syntax sugar built on top of promises that makes asynchronous code look and behave more like synchronous code.
+
+   - An `async` function always returns a promise. If the function returns a value, it becomes a resolved promise; if it throws, it becomes a rejected promise.
+   - `await` pauses execution of the current async function until the awaited promise settles, but it does **not** block the main thread — the runtime continues running other tasks and microtasks.
+   - Error handling is usually done with `try/catch` instead of `.then/.catch` chains.
+
+   ### Example (step-by-step execution)
+   ```js
+   async function loadUser(userId) {
+     const resp = await fetch(`/api/users/${userId}`); // (1)
+     const user = await resp.json();                  // (2)
+     return user;                                    // (3)
+   }
+
+   const promise = loadUser(42);
+   promise.then(user => console.log(user));
+   ```
+
+   **Execution flow (thread / event loop perspective):**
+   1. **Call `loadUser(42)`**: returns a promise immediately. The async function begins executing synchronously up to the first `await`.
+   2. **At `await fetch(...)`**: `fetch()` returns a promise. The async function yields control and the remaining code is scheduled as a **microtask** to resume once `fetch` resolves. The JS thread is free to continue running other work.
+   3. **Network response arrives**: the browser resolves the `fetch` promise and queues the resume of `loadUser` as a microtask.
+   4. **Microtask runs**: the async function resumes at `await resp.json()`. That returns a promise, so the function yields again, queuing the rest as another microtask.
+   5. **`resp.json()` resolves**: the function resumes, sets `user`, and reaches `return user;`. That fulfills the promise returned from `loadUser`.
+   6. **`promise.then(...)` runs**: the handler is scheduled as a microtask and runs with the resolved user.
+
+   Under the hood, each `await` is roughly equivalent to:
+   ```js
+   promise.then(value => { /* resume */ }, err => { /* reject */ });
+   ```
+   Both `Promise` callbacks and resumed `async` functions are scheduled as **microtasks**, not macrotasks.
+
+23. **Event Delegation**
+
+   Imagine you render 1000 buttons in a list.
+   ```js
+   // Bad approach:
+   buttons.forEach(btn => {
+      btn.addEventListener("click", handleClick);
+   });
+
+   // Better approach:
+   parent.addEventListener("click", handleClick);
+   ```
+   Explain:
+   1️⃣ How does this work internally?
+
+   ***Answer:*** The browser builds an event propagation path from the deepest clicked element up through its ancestors. When you attach a listener to the parent, the click event bubbles up from the button to the parent, and the parent handler runs. The handler can inspect `event.target` (the original button) and decide how to respond.
+
+   2️⃣ What browser mechanism enables this?
+
+   ***Answer:*** DOM event propagation (capturing and bubbling). Most events bubble up the DOM tree, allowing a single listener on an ancestor to catch events from many descendants.
+
+   3️⃣ Why does it improve performance?
+
+   ***Answer:*** It reduces the number of event listeners in memory (fewer allocations and less work for garbage collection) and avoids repeatedly attaching/removing listeners when elements are created or destroyed. Fewer listeners also means less overhead during event dispatch.
+
+   4️⃣ One situation where event delegation fails or is not ideal
+
+   ***Answer:*** It doesn’t work for non-bubbling events (e.g., `focus`, `blur`, `mouseenter`, `mouseleave`) and can be awkward when different elements require very different handler logic or when you need tight control of event order/propagation (e.g., stopping propagation on a child).
+   
